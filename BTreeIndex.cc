@@ -9,6 +9,7 @@
  
 #include "BTreeIndex.h"
 #include "BTreeNode.h"
+#include <iostream>
 
 using namespace std;
 
@@ -44,10 +45,10 @@ RC BTreeIndex::open(const string& indexname, char mode)
 	{
 		if(pf.read(0, buffer) >= 0) //pid0 holds will hold rootPid, and treeHeight
 		{
-			printf("READ SUCCESSFUL\n");
+			//printf("READ SUCCESSFUL\n");
 			rootPid = *((PageId*)buffer);
 			treeHeight = *((int*)(buffer+sizeof(int)));
-			printf("ROOT ID: %d, HEIGHT: %d\n",rootPid, treeHeight);
+			//printf("ROOT ID: %d, HEIGHT: %d\n",rootPid, treeHeight);
 		}
 		else
 			return -1;
@@ -70,7 +71,7 @@ RC BTreeIndex::close()
     if(pf.close() < 0)
     	return -1;
 
-    printf("INDEX FILE CLOSED, ROOT PID: %d HEIGHT: %d\nn", rootPid, treeHeight);
+    //printf("INDEX FILE CLOSED, ROOT PID: %d HEIGHT: %d\nn", rootPid, treeHeight);
     return 0;
 }
 
@@ -92,7 +93,7 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 			return rc;
 		else if(rc == 1) // means the leaf node was full, and has been split. 
 		{
-			printf("NODE WAS SPLIT, ADDING PARENT...\n");
+			//printf("NODE WAS SPLIT, ADDING PARENT...\n");
 			//rootPid = pf.endPid(); // new pid will be the root
 			BTNonLeafNode parent = BTNonLeafNode();
 
@@ -103,13 +104,13 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 				return -1;
 			
 			treeHeight++; // since parent created, increment treeHeight
-			printf("PARENT CREATED!\n");
-			parent.printBuffer();
+			//printf("PARENT CREATED!\n");
+			//parent.printBuffer();
 			PageId left, right;
 			parent.locateChildPtr(41,left);
-			printf("PARENT NODE LEFT POINTER IS %d\n", left);
+			//printf("PARENT NODE LEFT POINTER IS %d\n", left);
 			parent.locateChildPtr(42,right);
-			printf("PARENT NODE RIGHT POINTER IS %d\n", right);
+			//printf("PARENT NODE RIGHT POINTER IS %d\n", right);
 			return 0;
 		}
 		else 
@@ -117,12 +118,12 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 	}
 	else if (treeHeight == 0) // index empty, inserting first node
 	{
-		printf("In else, new index\n");
+		//printf("In else, new index\n");
 		rootPid = pf.endPid(); // rootPid is 0
 		BTLeafNode ln = BTLeafNode();
 		if(ln.insert(key, rid) < 0)
 			return -1;
-		ln.printBuffer();
+		//ln.printBuffer();
 		if(ln.write(rootPid, pf) < 0) // use page 0 of pageFile to store 
 			return -1; 
 		treeHeight++; // treeHeight is now 1
@@ -144,7 +145,7 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
  */
 RC BTreeIndex::insertRecursive(int& key, const RecordId& rid, int currentHeight, PageId currentPid, int& foundKey, int& newPid)
 {
-	printf("In recursive.\n");
+	//printf("In recursive.\n");
 	// if currentHeight = treeHeight, we are at the leaf node
 	if(currentHeight == treeHeight)
 	{
@@ -153,20 +154,20 @@ RC BTreeIndex::insertRecursive(int& key, const RecordId& rid, int currentHeight,
 			return -1;
 		if(ln.getKeyCount() >= ln.MAX_KEYS) // leafNode is full, need to do insert and split
 		{
-			printf("No space in node.\n");
+			//printf("No space in node.\n");
 			BTLeafNode newNode = BTLeafNode();
 			// split the full node, second half of elements placed into newNode
 			if(ln.insertAndSplit(key, rid, newNode, foundKey) < 0)
 				return -1;
-
+			cout << foundKey << " leaf split" << endl;
 			// rearrange the pointers for the leaf nodes
 			newNode.setNextNodePtr(ln.getNextNodePtr());
 			newPid = pf.endPid();
 			ln.setNextNodePtr(newPid);
 
-			printf("OLD NODE: PID IS %d\n", currentPid);
+			//printf("OLD NODE: PID IS %d\n", currentPid);
 			ln.printBuffer();
-			printf("NEW NODE: PID IS %d\n", newPid);
+			//printf("NEW NODE: PID IS %d\n", newPid);
 			newNode.printBuffer();
 
 			// write both nodes to memory
@@ -180,11 +181,11 @@ RC BTreeIndex::insertRecursive(int& key, const RecordId& rid, int currentHeight,
 		}
 		else // there is space in node to insert 
 		{
-			printf("Space in node.\n");
+			//printf("Space in node.\n");
 			ln.insert(key, rid);
 			if(ln.write(currentPid, pf) < 0)
 				return -1;
-			ln.printBuffer();
+			//ln.printBuffer();
 			return 0;
 		}
 	}
@@ -212,9 +213,12 @@ RC BTreeIndex::insertRecursive(int& key, const RecordId& rid, int currentHeight,
 			{
 				int sKey;
 				BTNonLeafNode newNode = BTNonLeafNode();
-				// split the full node, second half of elements placed into newNode
+				// split the full node, second half of elements placed into newNode	
+				nl.printBuffer();
 				nl.insertAndSplit(foundKey, newPid, newNode, sKey);
-				
+				cout << "nonleaf split " << sKey << endl;
+				nl.printBuffer();
+				newNode.printBuffer();
 				newPid = pf.endPid();
 				foundKey = sKey;
 				
@@ -275,7 +279,7 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 		{
 			if(nonLeafNode.read(pid, pf) < 0)
 			{
-				printf("NONLEAF LOCATE FAILED\n");
+				//printf("NONLEAF LOCATE FAILED\n");
 				return -1;
 			}
 			// Find out if you need to traverse left or right of node.
@@ -289,7 +293,7 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
 
 	if(leafNode.read(pid, pf) < 0)
 	{
-		printf("LEAF LOCATE FAILED\n");
+		//printf("LEAF LOCATE FAILED\n");
 		return -1;
 	}
 	// locate, the searchKey of selected pid, and store into entryId

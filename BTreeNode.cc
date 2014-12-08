@@ -20,6 +20,7 @@ BTLeafNode::BTLeafNode()
  */
 RC BTLeafNode::read(PageId pid, const PageFile& pf)
 { 
+	m_pid = pid;
 	return pf.read(pid, buffer);
 }
     
@@ -91,6 +92,7 @@ RC BTLeafNode::insert(int key, const RecordId& rid)
 			temp = (LeafElement *) buffer + eid;
 			temp->key = key;
 			temp->rid = rid;
+			printf("shit with key = %d is inserted (%d, %d)\n", key, m_pid, eid); 
 		}
 		else
 			return -1;
@@ -242,13 +244,18 @@ RC BTLeafNode::setNextNodePtr(PageId pid)
 int BTLeafNode::printBuffer()
 {
 	for(int i = 1; i <= getKeyCount(); i++)
-	{
+	{ /*
 		 LeafElement* temp = (LeafElement *) buffer+i;
 		 std::cout << temp->key << endl;
 		 std::cout << temp->rid.pid << endl;
 		 std::cout << temp->rid.sid << endl;
-		 std::cout << "\n";
+		 std::cout << "\n"; */
+
+		 LeafElement* temp = (LeafElement *) buffer+i;
+		cout << "key= " << temp->key << ", ";
+		
 	}
+	cout << endl;
 	return 0;
 }
 
@@ -314,9 +321,14 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 		int result = locate(key, eid);
 		NonLeafElement* temp;// = (LeafElement *) buffer;
 		if(result == -1) // append to end of node
-		{
+		{	
+			temp = (NonLeafElement*) buffer;
+			int old=temp->pid;
 			temp = (NonLeafElement *) buffer + (getKeyCount()+1);
 			temp->key = key;
+			temp->pid = old;
+			
+			temp = (NonLeafElement*) buffer;
 			temp->pid = pid;
 		}
 		else if(result == 0)// locate did return a value
@@ -377,7 +389,9 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 		else
 			middle = (getKeyCount()+1)/2+1;
 		NonLeafElement* temp;
-		for(int i = middle; i <= getKeyCount()+1; i++)
+		temp = (NonLeafElement*) buffer+middle;
+		midKey = temp->key;
+		for(int i = middle+1; i <= getKeyCount()+1; i++)
 		{
 			temp = (NonLeafElement *) buffer+i;
 			int tempKey = temp->key;
@@ -445,22 +459,27 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 		{
 			if(searchKey < temp->key)
 			{
+				cout << searchKey<< "going left for " << temp->key << endl;
 				pid = temp->pid;
 				return 0;
 			}
 		}
 		else
 		{
-			printf("LOCATE CHILD... IN ELSE\n");
+			//printf("LOCATE CHILD... IN ELSE\n");
 			if(searchKey < temp->key)
 			{
-				printf("SEARCH KEY WAS LESS THAN PARENT KEY\n");
+				//printf("SEARCH KEY WAS LESS THAN PARENT KEY\n");
 				pid = temp->pid;
-				printf("THE PID IS: %d\n", pid);
+				cout << searchKey<< "going left for " << temp->key << endl;
+				pid = temp->pid;
+				//printf("THE PID IS: %d\n", pid);
 				return 0;
 			}
 			else
 			{
+				cout << searchKey<< "going right for " << temp->key << endl;
+
 				temp = (NonLeafElement *) buffer;
 				pid = temp->pid;
 				return 0;
@@ -479,8 +498,8 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
  */
 RC BTNonLeafNode::initializeRoot(PageId pid1, int key, PageId pid2)
 { 
-	printf("IN INITIALIZE ROOT: LEFT PID IS %d\n",pid1);
-	printf("IN INITIALIZE ROOT: RIGHT PID IS %d\n",pid2);
+	//printf("IN INITIALIZE ROOT: LEFT PID IS %d\n",pid1);
+	//printf("IN INITIALIZE ROOT: RIGHT PID IS %d\n",pid2);
 	if(getKeyCount() == 0)
 	{
 		NonLeafElement* temp = (NonLeafElement *) buffer;
@@ -500,10 +519,12 @@ int BTNonLeafNode::printBuffer()
 	for(int i = 1; i <= getKeyCount(); i++)
 	{
 		 NonLeafElement* temp = (NonLeafElement *) buffer+i;
-		 std::cout << temp->key << endl;
-		 std::cout << temp->pid << endl;
-		 std::cout << temp->sid << endl;
-		 std::cout << "\n";
+		 //std::cout << temp->key << endl;
+		 //std::cout << temp->pid << endl;
+		 //std::cout << temp->sid << endl;
+		 //std::cout << "\n";
+		cout << "nkey= " << temp->key << ",";
 	}
+	cout << endl;
 	return 0;
 }

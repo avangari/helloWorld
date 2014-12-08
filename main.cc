@@ -6,15 +6,28 @@
  * @author Junghoo "John" Cho <cho AT cs.ucla.edu>
  * @date 3/24/2008
  */
- 
+ #include <iostream>
+
 #include "Bruinbase.h"
 #include "SqlEngine.h"
 #include "BTreeNode.h"
 #include "BTreeIndex.h"
 
+using namespace std;
 int main()
 {
-    SqlEngine::run(stdin);
+    //SqlEngine::run(stdin);
+	 int keys [] = {1,4,3,100, 25, 17, 18, 299, 100001, 101, 
+						103, 102, 104, 110, 108, 111, 106, 120, 109, 107, 
+						99, 98, 97, 96, 95, 2};
+	 BTreeIndex bti;
+	 bti.open("hello", 'w');
+	 RecordId rid;
+	 rid.pid=0;
+	 rid.sid =0;
+	 for (int i=0; i < 26; i++) {
+		cout << "key inserting is= " << keys[i] << endl;
+	 	bti.insert(keys[i], rid); }
     // BTreeIndex bIndex;
     // RecordId rid;
     // rid.pid = 1;

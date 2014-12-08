@@ -313,42 +313,22 @@ RC BTreeIndex::locate(int searchKey, IndexCursor& cursor)
  */
 RC BTreeIndex::readForward(IndexCursor& cursor, int& key, RecordId& rid)
 {
+	BTLeafNode leafNode;
 
-  BTLeafNode ln;
-  ln.read(cursor.pid, pf);
-  ln.readEntry(cursor.eid, key, rid);
+	// read selected pid
+	if(leafNode.read(cursor.pid, pf) < 0)
+		return -1;
 
-  //Check if we have a valid page
-  if (cursor.pid <= 0 || cursor.pid >= pf.endPid())
-  {
-    return 1;
-  }
+	// get key and rid from selecte eid, and store into the references
+	if(leafNode.readEntry(cursor.eid, key, rid) < 0)
+		return -1;
 
-  // Increment cursor
-  cursor.eid++;
-  if (cursor.eid >= ln.getKeyCount())
-  {
-    cursor.pid = ln.getNextNodePtr();
-    cursor.eid = 0;
-  }
+	cursor.eid++;
 
-  return 0;
-	// BTLeafNode leafNode;
-
-	// // read selected pid
-	// if(leafNode.read(cursor.pid, pf) < 0)
-	// 	return -1;
-
-	// // get key and rid from selecte eid, and store into the references
-	// if(leafNode.readEntry(cursor.eid, key, rid) < 0)
-	// 	return -1;
-
-	// cursor.eid++;
-
-	// if(cursor.eid > leafNode.getKeyCount())
-	// {
-	// 	cursor.eid = 1;
-	// 	cursor.pid = leafNode.getNextNodePtr();
-	// }
- //    return 0;
+	if(cursor.eid > leafNode.getKeyCount())
+	{
+		cursor.eid = 1;
+		cursor.pid = leafNode.getNextNodePtr();
+	}
+    return 0;
 }

@@ -438,55 +438,36 @@ RC BTNonLeafNode::locate(int searchKey, int& eid)
  */
 RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 {
-		int count = getKeyCount();
-	int ikey;
-	PageId lpid;
-	PageId rpid;
-	for(int i = 0; i < count; i++){
-		memcpy(&lpid,sizeof(int)+buffer+(i*(sizeof(PageId)+sizeof(int))),sizeof(PageId));
-		memcpy(&ikey,sizeof(int)+buffer+(sizeof(PageId)+i*(sizeof(PageId)+sizeof(int))),sizeof(int));
-		memcpy(&rpid,sizeof(int)+buffer+(sizeof(PageId)+sizeof(int)+i*(sizeof(PageId)+sizeof(int))),sizeof(PageId));
-		if(i == count-1 && searchKey >= ikey){	//looking at last key
-			pid = rpid;
-			return 0;
+	for(int i = 1; i <= getKeyCount(); i++)
+	{
+		NonLeafElement* temp = (NonLeafElement *) buffer+i;
+		if(i != getKeyCount())
+		{
+			if(searchKey < temp->key)
+			{
+				pid = temp->pid;
+				return 0;
+			}
 		}
-		
-		if(searchKey < ikey){
-			pid = lpid;
-			return 0;
+		else
+		{
+			printf("LOCATE CHILD... IN ELSE\n");
+			if(searchKey < temp->key)
+			{
+				printf("SEARCH KEY WAS LESS THAN PARENT KEY\n");
+				pid = temp->pid;
+				printf("THE PID IS: %d\n", pid);
+				return 0;
+			}
+			else
+			{
+				temp = (NonLeafElement *) buffer;
+				pid = temp->pid;
+				return 0;
+			}
 		}
 	}
 	return -1;
-	// for(int i = 1; i <= getKeyCount(); i++)
-	// {
-	// 	NonLeafElement* temp = (NonLeafElement *) buffer+i;
-	// 	if(i != getKeyCount())
-	// 	{
-	// 		if(searchKey < temp->key)
-	// 		{
-	// 			pid = temp->pid;
-	// 			return 0;
-	// 		}
-	// 	}
-	// 	else
-	// 	{
-	// 		printf("LOCATE CHILD... IN ELSE\n");
-	// 		if(searchKey < temp->key)
-	// 		{
-	// 			printf("SEARCH KEY WAS LESS THAN PARENT KEY\n");
-	// 			pid = temp->pid;
-	// 			printf("THE PID IS: %d\n", pid);
-	// 			return 0;
-	// 		}
-	// 		else
-	// 		{
-	// 			temp = (NonLeafElement *) buffer;
-	// 			pid = temp->pid;
-	// 			return 0;
-	// 		}
-	// 	}
-	// }
-	// return -1;
 }
 
 /*

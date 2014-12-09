@@ -320,7 +320,10 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 		int eid;
 		int result = locate(key, eid);
 		NonLeafElement* temp;// = (LeafElement *) buffer;
+<<<<<<< HEAD
 		NonLeafElement* tempTwo;
+=======
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 		if(result == -1) // append to end of node
 		{	
 			temp = (NonLeafElement*) buffer;
@@ -339,6 +342,7 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 			NonLeafElement* endPosition = (NonLeafElement *)buffer + (getKeyCount()+1);
 			for(int i = (getKeyCount()+1); i > eid; i--)
 			{
+<<<<<<< HEAD
 				temp = (NonLeafElement*) buffer+i;
 				tempTwo = (NonLeafElement*) buffer+i-1;
 				temp->key = tempTwo->key;
@@ -346,6 +350,11 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 				// NonLeafElement* temp = endPosition - i;
 				// *endPosition = *temp;
 				// endPosition = temp;
+=======
+				NonLeafElement* temp = endPosition - 1;
+				*endPosition = *temp;
+				endPosition = temp;
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 			}
 
 			// insert key and rid into new element
@@ -365,7 +374,10 @@ RC BTNonLeafNode::insert(int key, PageId pid)
 			temp->key = numOfKeys;
 		}
 	}
+<<<<<<< HEAD
 	printBuffer();
+=======
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 	return 0; 
 }
 
@@ -397,11 +409,14 @@ RC BTNonLeafNode::insertAndSplit(int key, PageId pid, BTNonLeafNode& sibling, in
 		NonLeafElement* temp;
 		temp = (NonLeafElement*) buffer+middle;
 		midKey = temp->key;
+<<<<<<< HEAD
 		int oldPid = temp->pid;
 		temp = (NonLeafElement *) buffer;
 		int newPidForSibling = temp->pid;
 		temp->pid = oldPid;
 		sibling.changeEndRightPtr(newPidForSibling);
+=======
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 		for(int i = middle+1; i <= getKeyCount()+1; i++)
 		{
 			temp = (NonLeafElement *) buffer+i;
@@ -470,7 +485,11 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 		{
 			if(searchKey < temp->key)
 			{
+<<<<<<< HEAD
 				cout << searchKey<< " going left for " << temp->key << endl;
+=======
+				cout << searchKey<< "going left for " << temp->key << endl;
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 				pid = temp->pid;
 				return 0;
 			}
@@ -482,14 +501,22 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 			{
 				//printf("SEARCH KEY WAS LESS THAN PARENT KEY\n");
 				pid = temp->pid;
+<<<<<<< HEAD
 				cout << searchKey<< " going left for " << temp->key << endl;
+=======
+				cout << searchKey<< "going left for " << temp->key << endl;
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 				pid = temp->pid;
 				//printf("THE PID IS: %d\n", pid);
 				return 0;
 			}
 			else
 			{
+<<<<<<< HEAD
 				cout << searchKey<< " going right for " << temp->key << endl;
+=======
+				cout << searchKey<< "going right for " << temp->key << endl;
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 
 				temp = (NonLeafElement *) buffer;
 				pid = temp->pid;
@@ -500,6 +527,7 @@ RC BTNonLeafNode::locateChildPtr(int searchKey, PageId& pid)
 	return -1;
 }
 
+<<<<<<< HEAD
 RC BTNonLeafNode::changeEndRightPtr(PageId newPid)
 { 
 	NonLeafElement* temp = (NonLeafElement *) buffer;
@@ -507,6 +535,8 @@ RC BTNonLeafNode::changeEndRightPtr(PageId newPid)
 	return 0;
 }
 
+=======
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 /*
  * Initialize the root node with (pid1, key, pid2).
  * @param pid1[IN] the first PageId to insert
@@ -541,7 +571,11 @@ int BTNonLeafNode::printBuffer()
 		 //std::cout << temp->pid << endl;
 		 //std::cout << temp->sid << endl;
 		 //std::cout << "\n";
+<<<<<<< HEAD
 		cout << "NONLEAFkey= " << temp->key << ",";
+=======
+		cout << "nkey= " << temp->key << ",";
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 	}
 	cout << endl;
 	return 0;

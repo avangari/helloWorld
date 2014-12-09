@@ -96,7 +96,10 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 			//printf("NODE WAS SPLIT, ADDING PARENT...\n");
 			//rootPid = pf.endPid(); // new pid will be the root
 			BTNonLeafNode parent = BTNonLeafNode();
+<<<<<<< HEAD
 			printf("PARENT CREATED: KEY %d", foundKey);
+=======
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 
 			// make parent the root
 			parent.initializeRoot(rootPid, foundKey, newPid);
@@ -107,10 +110,17 @@ RC BTreeIndex::insert(int key, const RecordId& rid)
 			treeHeight++; // since parent created, increment treeHeight
 			//printf("PARENT CREATED!\n");
 			//parent.printBuffer();
+<<<<<<< HEAD
 			//PageId left, right;
 			//parent.locateChildPtr(41,left);
 			//printf("PARENT NODE LEFT POINTER IS %d\n", left);
 			//parent.locateChildPtr(42,right);
+=======
+			PageId left, right;
+			parent.locateChildPtr(41,left);
+			//printf("PARENT NODE LEFT POINTER IS %d\n", left);
+			parent.locateChildPtr(42,right);
+>>>>>>> 21f40d5a23e71ac40026d9bb0354825182a7eec4
 			//printf("PARENT NODE RIGHT POINTER IS %d\n", right);
 			return 0;
 		}
